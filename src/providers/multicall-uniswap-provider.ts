@@ -36,10 +36,11 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
   constructor(
     protected chainId: ChainId,
     protected provider: BaseProvider,
-    protected gasLimitPerCall = 1_000_000
+    protected gasLimitPerCall = 1_000_000,
+    protected uniswapMulticallAddress?: string
   ) {
     super();
-    const multicallAddress = UNISWAP_MULTICALL_ADDRESSES[this.chainId];
+    const multicallAddress = UNISWAP_MULTICALL_ADDRESSES[this.chainId] || uniswapMulticallAddress;
 
     if (!multicallAddress) {
       throw new Error(
@@ -281,8 +282,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       if (!success || returnData.length <= 2) {
         log.debug(
           { result: aggregateResults[i] },
-          `Invalid result calling ${functionNames[i]} with ${
-            functionParams ? functionParams[i] : '0'
+          `Invalid result calling ${functionNames[i]} with ${functionParams ? functionParams[i] : '0'
           } params`
         );
         results.push({
@@ -305,10 +305,8 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
 
     log.debug(
       { results, functionNames, address },
-      `Results for multicall for ${
-        functionNames.length
-      } functions at address ${address} with ${
-        functionParams ? functionParams.length : ' 0'
+      `Results for multicall for ${functionNames.length
+      } functions at address ${address} with ${functionParams ? functionParams.length : ' 0'
       } different sets of params. Results as of block ${blockNumber}`
     );
     return {
